@@ -1,4 +1,4 @@
-from subprocess import check_output
+from subprocess import check_output, call
 from pathlib import Path
 from io import StringIO
 import re
@@ -12,7 +12,7 @@ def quote_path(path):
 class Info:
     """Holds relevant info from mkvinfo"""
 
-    titleregex = re.compile(r'\| \+ Title: (\S*)')
+    titleregex = re.compile(r'\| \+ Title: (.*)')
 
     def pprint(self):
         """Pretty print this Info object"""
@@ -43,6 +43,9 @@ class Info:
         self.tracks = []
         for group in sections:
             self.tracks.append(self.Track(group.strip()))
+
+    def get_tracks_by_type(self, type):
+        return [x for x in self.tracks if x.type == type]
 
 
     class Track:
@@ -84,9 +87,19 @@ class Info:
                     self.name = match.group(1).strip()
 
 if __name__ == "__main__":
-    path = Path("E:/torrents")
-    path /= "[denpa] Kyoukai no Kanata - Vol.1 [BD 720p AAC]"
-    path /= "[denpa] Kyoukai no Kanata - 01 [BD 720p AAC][0CE77F72].mkv"
-    result = Info(path)
+    pathlist = [Path("E:/torrents/[denpa] Kyoukai no Kanata - Vol.1 [BD 720p AAC]"),
+                Path("E:/torrents/[denpa] Kyoukai no Kanata - Vol.2 [BD 720p AAC]"),
+                Path("E:/torrents/[denpa] Kyoukai no Kanata - Vol.3 [BD 720p AAC]")]
+    outpath = Path("E:/torrents/test")
 
-    result.pprint()
+    for directory in pathlist:
+        for video in directory.iterdir():
+            info = Info(video)
+            tracks = info.get_tracks_by_type('subtitles')
+            
+            cmd = quote_path(MKV / 'mkvextract') + " tracks " + quote_path(video)
+            for track in tracks:
+                cmd += ' {2.id}:"{0!s}\\{1.stem}{2.name}.ass"'.format(outpath, video, track)
+            print(cmd)
+
+            raise "DONGER"
