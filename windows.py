@@ -56,14 +56,16 @@ class Info:
             self.name = 'undefined'
             self.language = 'undefined'
             # Other fields shouldn't be blank
-            while True:
+            loop = True
+            while loop:
                 """arguments: `buf` as string from mkvinfo output"""
                 pos = buf.find('\n')
                 if pos == -1:
-                    break
-                line = buf[:pos].strip()
+                    loop = False
+                    line = buf.strip()
+                else:
+                    line = buf[:pos].strip()
                 buf = buf[pos+1:].strip()
-                
 
                 if "Track number:" in line:
                     match = re.search(r': ([\d]+)\)\s*$', line)
@@ -83,8 +85,8 @@ class Info:
 
 if __name__ == "__main__":
     path = Path("E:/torrents")
-    path /= "[denpa] Kyoukai no Kanata - Vol.5 [BD 720p AAC]"
-    path /= "[denpa] Kyoukai no Kanata - 09 [BD 720p AAC][3D01D0CE].mkv"
+    path /= "[denpa] Kyoukai no Kanata - Vol.1 [BD 720p AAC]"
+    path /= "[denpa] Kyoukai no Kanata - 01 [BD 720p AAC][0CE77F72].mkv"
     result = Info(path)
 
     result.pprint()
